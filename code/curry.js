@@ -1,14 +1,24 @@
-function carry(fn, ...arg1) {
-    return function (...arg2) {
-        return fn(...arg1, ...arg2)
-    }
+
+const curry = (fn, ...args) => (...args2) => fn.apply(null, [].concat(...args, ...args2))
+
+const add = (...args) => {
+    return [...args].reduce((a,b) => a + b)
 }
 
-function add (x, y) {
+var curryAdd = curry(add, 10)
 
-    return (x + y)
-  
+console.log(curryAdd(1, 2,2)) // 3
+
+
+function a() {
+    let b = {}
+    return (function () {
+        return b
+    })()
 }
-var res = carry(add, 2)(2)
 
-console.log(res)
+function c() {
+    let b = a()
+    console.log(b)
+}
+c()
