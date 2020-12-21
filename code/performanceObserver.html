@@ -1,11 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+<!doctype html>
+<html>
+<head></head>
 <body>
-    
+<img id="image0" src="https://www.w3.org/Icons/w3c_main.png" />
+<script>
+
+function longTask () {
+
+},
+
+const resourceObserver = new PerformanceObserver(list => {
+  list
+    .getEntries()
+    .map(({ name, entryType, startTime, fetchStart, responseStart, responseEnd }) => {
+      const obj = {
+        "Name": name,
+        "Entry Type": entryType,
+        "Start Time": startTime,
+        "Fetch Start": fetchStart,
+        "Response Start": responseStart,
+        "Response End": responseEnd,
+      };
+      return JSON.stringify(obj, null, 2);
+    })
+    // Display them to the console.
+    .forEach(console.log);
+  // Disconnect after processing the events.
+  resourceObserver.disconnect();
+});
+// Subscribe to new events for Resource Timing.
+resourceObserver.observe({type: "resource"});
+
+
+async function run() {
+  performance.mark("startTask1");
+  await (() => {
+      console.log(123)
+  })()
+  performance.mark("endTask1");
+
+  performance.mark("startTask2");
+  await (() => {
+      console.log(125)
+  })()
+  performance.mark("endTask2");
+
+  const entries = performance.getEntriesByType("mark");
+  for (const entry of entries) {
+    console.table(entry.toJSON());
+  }
+}
+run();
+
+
+// element.addEventListener("click", e => {
+//   const component = getComponent(element);
+//   fetch(component.url).then(() => {
+//     element.textContent = "Updated";
+//     const updateMark = performance.mark("update_component", {
+//       detail: {component: component.name},
+//     });
+//     performance.measure("click_to_update_component", {
+//       detail: {component: component.name},
+//       start: e.timeStamp,
+//       end: updateMark.startTime,
+//     });
+//   });
+// });
+// 多个 Entry Type
+// userTimingObserver.observe({entryTypes: ["mark", "measure"]});
+
+</script>
 </body>
 </html>
