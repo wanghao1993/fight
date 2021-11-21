@@ -303,113 +303,6 @@ function resolveModifiedOptions (Ctor: Class<Component>): ?Object {
 
 ```
 
-
-# $mount
-
-通过断点调试。我们知道$mount的方法定义在`platforms/web/runtime/index.js`
-
-```js
-// public mount method
-Vue.prototype.$mount = function (
-  el?: string | Element,
-  hydrating?: boolean
-): Component {
-  el = el && inBrowser ? query(el) : undefined
-  return mountComponent(this, el, hydrating)
-}
-$mount只做了一件事情，执行了`mountComponent`
-
-```
-# mountComponent
-updateComponent主要做了几件事情：
-
-1.执行`beforeMount`生命周期函数；
-
-2.执行挂载，获取vdom并转换为dom;
-
-3.调用`_update`方法；
-
-4.创建组件的`Watcher`
-
-5.执行`mounted`生命周期函数；
-
-```js
-export function mountComponent (
-  vm: Component,
-  el: ?Element,
-  hydrating?: boolean
-): Component {
-  vm.$el = el
-  
-  if (!vm.$options.render) {
-    vm.$options.render = createEmptyVNode
-    if (process.env.NODE_ENV !== 'production') {
-      /* istanbul ignore if */
-      if ((vm.$options.template && vm.$options.template.charAt(0) !== '#') ||
-        vm.$options.el || el) {
-        warn(
-          'You are using the runtime-only build of Vue where the template ' +
-          'compiler is not available. Either pre-compile the templates into ' +
-          'render functions, or use the compiler-included build.',
-          vm
-        )
-      } else {
-        warn(
-          'Failed to mount component: template or render function not defined.',
-          vm
-        )
-      }
-    }
-  }
-  callHook(vm, 'beforeMount')
-
-  let updateComponent
-  /* istanbul ignore if */
-  if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
-    updateComponent = () => {
-      const name = vm._name
-      const id = vm._uid
-      const startTag = `vue-perf-start:${id}`
-      const endTag = `vue-perf-end:${id}`
-
-      mark(startTag)
-      const vnode = vm._render()
-      mark(endTag)
-      measure(`vue ${name} render`, startTag, endTag)
-
-      mark(startTag)
-      vm._update(vnode, hydrating)
-      mark(endTag)
-      measure(`vue ${name} patch`, startTag, endTag)
-    }
-  } else {
-    updateComponent = () => {
-      vm._update(vm._render(), hydrating)
-    }
-  }
-
-  // we set this to vm._watcher inside the watcher's constructor
-  // since the watcher's initial patch may call $forceUpdate (e.g. inside child
-  // component's mounted hook), which relies on vm._watcher being already defined
-  new Watcher(vm, updateComponent, noop, {
-    before () {
-      if (vm._isMounted && !vm._isDestroyed) {
-        callHook(vm, 'beforeUpdate')
-      }
-    }
-  }, true /* isRenderWatcher */)
-  hydrating = false
-
-  // manually mounted instance, call mounted on self
-  // mounted is called for render-created child components in its inserted hook
-  if (vm.$vnode == null) {
-    vm._isMounted = true
-    callHook(vm, 'mounted')
-  }
-  return vm
-}
-```
-
 # 总结
 
 new Vue()的主流成，实际上看起来还是比较简单的。
@@ -420,7 +313,7 @@ new Vue()的主流成，实际上看起来还是比较简单的。
 
 3.初始化一些自定义事件，包括新旧事件的对比和更新
 
-4.初始化 `$slots，$scopedSlots, $createElement`
+4.初始化 `\$slots，\$scopedSlots, $createElement`
 
 5.调用`beforeCreate`
 
@@ -432,26 +325,12 @@ new Vue()的主流成，实际上看起来还是比较简单的。
 
 9.调用`created`钩子函数
 
-10.如果有`el`就自动挂载执行`$mount`，如果没有就需要手动调用 `$mount`
-
-11.$mount执行`mountComponent`；
-
-    11.1 执行`beforeMount`生命周期函数；
-
-    11.2 执行挂载，获取vdom并转换为dom;
-
-    11.3 调用`_update`方法；
-
-    11.4 创建组件的`Watcher`
-
-    11.5 执行`mounted`生命周期函数；
-   
-到这里这个初始化到渲染的流程基本走完了，至于具体的细节，我们后面再说
+10.如果有`el`就自动挂载，如果没有就需要手动调用 `$mount`
 
 # 下一节预告
 
 响应式原理，以及实现及简版Vue
 
 # 最后
-看了一下似乎也没有那么难，
-卑微求关注，求点赞，希望大家关注一下我的公众号[前端工兵](https://wh-blog.obs.cn-south-1.myhuaweicloud.com/qrcode_for_gh_32e7bfb8e243_430.jpg)，我们一起进步，写的不好的，喷轻点～
+
+卑微求关注，希望大家关注一下我的公众号[前端工兵](https://wh-blog.obs.cn-south-1.myhuaweicloud.com/qrcode_for_gh_32e7bfb8e243_430.jpg)，人数个位数，写的不好的，喷轻点～
