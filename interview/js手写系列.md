@@ -44,14 +44,14 @@ new操作符做了这些事：
 如果函数没有返回对象类型Object(包含Functoin, Array, Date, RegExg, Error)，那么new表达式中的函数调用将返回该对象引用。
 ```js
 
-function MyNew (fn, ...args) {
+function MyNew (func, ...args) {
     const obj = {}
 
     if (func.prototype !== null) {
-        res.__proto__ = func.prototype;
+        obj.__proto__ = func.prototype;
     }
 
-    let res = fn.call(obj, ...args)
+    let res = func.call(obj, ...args)
 
     if (res && (typeof obj === 'object' || typeof obj === 'function')) {
         return res
@@ -76,7 +76,33 @@ Function.prototype.call2 = function (ctx = globalThis) {
 }
 ```
 ##### 5.发布订阅
+```js
 
+function E () {}
+
+E.prototype = {
+    event: {},
+    on: function (ename, fn) {
+        if (this.event[ename]) {
+            this.event[ename].push(fn)
+        } else {
+            this.event[ename] = [fn]
+        }
+    },
+    
+    remove: function (ename) {
+        delete this.events[ename]
+    },
+
+    emit: function (ename) {
+        this.events[ename].forEach(fn => {
+            fn.apply(this, args)
+        })
+    }
+}
+
+
+```
 ##### 6.instanceOf
 
 ###### 7.Promise
