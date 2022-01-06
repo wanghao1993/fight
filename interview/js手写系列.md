@@ -109,6 +109,92 @@ E.prototype = {
 
 ###### 8.async/await
 
+```js
+function asyncToGenerator(generatorFunc) {
+    return function() {
+      const gen = generatorFunc.apply(this, arguments)
+      return new Promise((resolve, reject) => {
+        function step(key, arg) {
+          let generatorResult
+          try {
+            generatorResult = gen[key](arg)
+          } catch (error) {
+            return reject(error)
+          }
+          const { value, done } = generatorResult
+          if (done) {
+            return resolve(value)
+          } else {
+            return Promise.resolve(value).then(val => step('next', val), err => step('throw', err))
+          }
+        }
+        step("next")
+      })
+    }
+}
+
+```
 ###### 9.深拷贝
 
+简单实现一下
+```js
+
+const isObject = o => Object.prototype.toString.call(o) === '[object Object]'
+
+const isArray = o => Object.prototype.toString.call(o) === '[object Array]'
+
+const isDate = o => Object.prototype.toString.call(o) === '[object Date]'
+
+const isNull = o => o === null
+function deepClone (Obj) {
+    if (typeof Obj !== 'object') return Obj
+    let cloneObj = isArray(Obj[key]) ? [] : {}
+    for (const key in Obj) {
+        if (isObject(Obj[key]) || isArray(Obj[key])) {
+            cloneObj[key] = deepClone(Obj[key])
+        } else if (isDate(Obj[key])) {
+            cloneObj[key] = new Date(Obj[key])
+        } else {
+            cloneObj[key] = Obj[key]
+        }
+    }
+
+    return cloneObj
+}
+
+```
+
 ###### 10.数组flatten扁平化
+
+```js
+function flatten (arr, n = 1) {
+    if (Array.isArray(arr)) {
+        throw Error('First argument must be an array')
+    }
+
+    if (!arr.length) return []
+    let count = 0
+    
+    let res = []
+    const loop = a => {
+        res = []
+        a.forEach(item => {
+            if (Array.isArray(item)) {
+                res = res.concat([...item])
+            } else {
+                res.push(item)
+            }
+        })
+
+        count++
+
+        if (count < n) {
+            loop(res)
+        }
+    }
+
+    loop(arr)
+
+    return res
+}
+```
